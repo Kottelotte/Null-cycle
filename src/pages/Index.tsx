@@ -22,7 +22,6 @@ enum GameState { PLAYING }
 const TILEMAP: number[][] = Array.from({ length: ROWS }, (_, r) =>
   Array.from({ length: COLS }, (_, c) => {
     if (r === ROWS - 1) return 1;                // ground
-    if (r >= ROWS - 3 && (c === 0 || c === COLS - 1)) return 1; // walls
     if (r === ROWS - 4 && c >= 8 && c <= 12) return 1; // floating platform
     return 0;
   })
