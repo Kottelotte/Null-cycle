@@ -37,7 +37,10 @@ interface Entity {
 
 function createPlayer(index: number = 0): Entity {
   const size = Math.round(TILE / 3);
-  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: 2, vy: 0, w: size, h: size };
+  const baseSpeed = 2;
+  const direction = Math.random() < 0.5 ? 1 : -1;
+  const speedVariation = baseSpeed * (0.9 + Math.random() * 0.2); // ±10%
+  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: speedVariation * direction, vy: 0, w: size, h: size };
 }
 
 function isSolid(col: number, row: number): boolean {
