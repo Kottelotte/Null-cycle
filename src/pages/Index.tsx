@@ -122,6 +122,13 @@ function drawSignalBar(ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = "#4ae84a";
   ctx.fillRect(10, 6, barW * (signalIntegrity / 100), 10);
 }
+
+function drawDebugOverlay(ctx: CanvasRenderingContext2D) {
+  const mult = getSpeedMultiplier();
+  ctx.fillStyle = "#fff";
+  ctx.font = "12px monospace";
+  ctx.fillText(`Signal: ${signalIntegrity}  Speed: x${mult.toFixed(2)}`, 10, 32);
+}
 // ── React wrapper (thin shell) ─────────────────────────────
 const Index = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -157,6 +164,7 @@ const Index = () => {
       drawTiles(ctx);
       for (const e of entities) drawEntity(ctx, e);
       drawSignalBar(ctx);
+      drawDebugOverlay(ctx);
 
       raf = requestAnimationFrame(loop);
     }
