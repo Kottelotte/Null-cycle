@@ -36,7 +36,8 @@ interface Entity {
 }
 
 function createPlayer(index: number = 0): Entity {
-  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: 2, vy: 0, w: TILE - 4, h: TILE - 4 };
+  const size = Math.round(TILE / 3);
+  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: 2, vy: 0, w: size, h: size };
 }
 
 function isSolid(col: number, row: number): boolean {
