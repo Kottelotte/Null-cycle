@@ -43,7 +43,7 @@ function createPlayer(index: number = 0): Entity {
 }
 
 function isSolid(col: number, row: number): boolean {
-  if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return true;
+  if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return false;
   return TILEMAP[row][col] === 1;
 }
 
@@ -92,8 +92,8 @@ function updateEntity(e: Entity): boolean {
     }
   }
 
-  // entity fell off screen?
-  return e.y > H + TILE;
+  // entity off screen?
+  return e.y > H + TILE || e.x + e.w < 0 || e.x > W;
 }
 
 // ── Rendering ──────────────────────────────────────────────
