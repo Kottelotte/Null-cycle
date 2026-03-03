@@ -9,8 +9,10 @@ const H = ROWS * TILE;
 const GRAVITY = 0.5;
 const SIGNAL_DECAY = 10;
 const MIN_SPEED_MULT = 0.6;
+const EXIT_ZONE_W = 40;
 
 let signalIntegrity = 100;
+let rescuedCount = 0;
 
 function getSpeedMultiplier(): number {
   return Math.max(MIN_SPEED_MULT, signalIntegrity / 100);
@@ -92,8 +94,15 @@ function updateEntity(e: Entity): boolean {
     }
   }
 
+  // exit zone detection (right edge)
+  if (e.x + e.w >= W - EXIT_ZONE_W) {
+    rescuedCount++;
+    return true; // remove entity, but caller must NOT reduce signal
+  }
+
   // entity off screen?
-  return e.y > H + TILE || e.x + e.w < 0 || e.x > W;
+  if (e.y > H + TILE || e.x + e.w < 0) return true; // dead
+  return false;
 }
 
 // ── Rendering ──────────────────────────────────────────────
@@ -127,7 +136,7 @@ function drawDebugOverlay(ctx: CanvasRenderingContext2D) {
   const mult = getSpeedMultiplier();
   ctx.fillStyle = "#fff";
   ctx.font = "12px monospace";
-  ctx.fillText(`Signal: ${signalIntegrity}  Speed: x${mult.toFixed(2)}`, 10, 32);
+  ctx.fillText(`Signal: ${signalIntegrity}  Speed: x${mult.toFixed(2)}  Rescued: ${rescuedCount}`, 10, 32);
 }
 // ── React wrapper (thin shell) ─────────────────────────────
 const Index = () => {
@@ -142,6 +151,7 @@ const Index = () => {
     let state: GameState = GameState.PLAYING;
     const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
     signalIntegrity = 100;
+    rescuedCount = 0;
     let raf = 0;
 
     function loop() {
@@ -149,10 +159,15 @@ const Index = () => {
       switch (state) {
         case GameState.PLAYING:
           for (let i = entities.length - 1; i >= 0; i--) {
-            const dead = updateEntity(entities[i]);
-            if (dead) {
+            const e = entities[i];
+            const prevRescued = rescuedCount;
+            const removed = updateEntity(e);
+            if (removed) {
               entities.splice(i, 1);
-              signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+              // only decay signal if entity was NOT rescued
+              if (rescuedCount === prevRescued) {
+                signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+              }
             }
           }
           break;
@@ -162,6 +177,9 @@ const Index = () => {
       ctx.fillStyle = "#1a1a2e";
       ctx.fillRect(0, 0, W, H);
       drawTiles(ctx);
+      // draw exit zone
+      ctx.fillStyle = "rgba(74, 232, 74, 0.15)";
+      ctx.fillRect(W - EXIT_ZONE_W, 0, EXIT_ZONE_W, H);
       for (const e of entities) drawEntity(ctx, e);
       drawSignalBar(ctx);
       drawDebugOverlay(ctx);
