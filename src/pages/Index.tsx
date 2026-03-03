@@ -7,6 +7,14 @@ const ROWS = 15;
 const W = COLS * TILE;
 const H = ROWS * TILE;
 const GRAVITY = 0.5;
+const SIGNAL_DECAY = 10;
+const MIN_SPEED_MULT = 0.6;
+
+let signalIntegrity = 100;
+
+function getSpeedMultiplier(): number {
+  return Math.max(MIN_SPEED_MULT, signalIntegrity / 100);
+}
 
 enum GameState { PLAYING }
 
@@ -36,12 +44,13 @@ function isSolid(col: number, row: number): boolean {
   return TILEMAP[row][col] === 1;
 }
 
-function updateEntity(e: Entity) {
+function updateEntity(e: Entity): boolean {
+  const mult = getSpeedMultiplier();
   // gravity
   e.vy += GRAVITY;
 
   // horizontal movement + collision
-  e.x += e.vx;
+  e.x += e.vx * mult;
   const left = Math.floor(e.x / TILE);
   const right = Math.floor((e.x + e.w - 1) / TILE);
   const topR = Math.floor(e.y / TILE);
@@ -79,6 +88,9 @@ function updateEntity(e: Entity) {
       break;
     }
   }
+
+  // entity fell off screen?
+  return e.y > H + TILE;
 }
 
 // ── Rendering ──────────────────────────────────────────────
@@ -100,6 +112,13 @@ function drawEntity(ctx: CanvasRenderingContext2D, e: Entity) {
   ctx.fillRect(e.x, e.y, e.w, e.h);
 }
 
+function drawSignalBar(ctx: CanvasRenderingContext2D) {
+  const barW = W - 20;
+  ctx.fillStyle = "#333";
+  ctx.fillRect(10, 6, barW, 10);
+  ctx.fillStyle = "#4ae84a";
+  ctx.fillRect(10, 6, barW * (signalIntegrity / 100), 10);
+}
 // ── React wrapper (thin shell) ─────────────────────────────
 const Index = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -112,13 +131,20 @@ const Index = () => {
 
     let state: GameState = GameState.PLAYING;
     const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
+    signalIntegrity = 100;
     let raf = 0;
 
     function loop() {
       // state machine
       switch (state) {
         case GameState.PLAYING:
-          for (const e of entities) updateEntity(e);
+          for (let i = entities.length - 1; i >= 0; i--) {
+            const dead = updateEntity(entities[i]);
+            if (dead) {
+              entities.splice(i, 1);
+              signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+            }
+          }
           break;
       }
 
@@ -127,6 +153,7 @@ const Index = () => {
       ctx.fillRect(0, 0, W, H);
       drawTiles(ctx);
       for (const e of entities) drawEntity(ctx, e);
+      drawSignalBar(ctx);
 
       raf = requestAnimationFrame(loop);
     }
