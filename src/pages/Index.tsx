@@ -27,8 +27,8 @@ interface Entity {
   w: number; h: number;
 }
 
-function createPlayer(): Entity {
-  return { x: TILE * 2, y: TILE * (ROWS - 3), vx: 2, vy: 0, w: TILE - 4, h: TILE - 4 };
+function createPlayer(index: number = 0): Entity {
+  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: 2, vy: 0, w: TILE - 4, h: TILE - 4 };
 }
 
 function isSolid(col: number, row: number): boolean {
@@ -111,14 +111,14 @@ const Index = () => {
     canvas.height = H;
 
     let state: GameState = GameState.PLAYING;
-    const player = createPlayer();
+    const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
     let raf = 0;
 
     function loop() {
       // state machine
       switch (state) {
         case GameState.PLAYING:
-          updateEntity(player);
+          for (const e of entities) updateEntity(e);
           break;
       }
 
@@ -126,7 +126,7 @@ const Index = () => {
       ctx.fillStyle = "#1a1a2e";
       ctx.fillRect(0, 0, W, H);
       drawTiles(ctx);
-      drawEntity(ctx, player);
+      for (const e of entities) drawEntity(ctx, e);
 
       raf = requestAnimationFrame(loop);
     }
