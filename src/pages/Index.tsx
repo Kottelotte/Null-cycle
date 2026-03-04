@@ -191,6 +191,7 @@ const Index = () => {
     const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
     signalIntegrity = 100;
     rescuedCount = 0;
+    runOver = false;
     placedBlocks.clear();
     let raf = 0;
 
