@@ -210,7 +210,10 @@ const Index = () => {
     }
 
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      canvas.removeEventListener("click", handleClick);
+    };
   }, []);
 
   return (
