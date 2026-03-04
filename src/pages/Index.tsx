@@ -13,6 +13,7 @@ const EXIT_ZONE_W = 40;
 
 let signalIntegrity = 100;
 let rescuedCount = 0;
+const placedBlocks = new Set<string>();
 
 function getSpeedMultiplier(): number {
   return Math.max(MIN_SPEED_MULT, signalIntegrity / 100);
@@ -46,7 +47,7 @@ function createPlayer(index: number = 0): Entity {
 
 function isSolid(col: number, row: number): boolean {
   if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return false;
-  return TILEMAP[row][col] === 1;
+  return TILEMAP[row][col] === 1 || placedBlocks.has(`${col},${row}`);
 }
 
 function updateEntity(e: Entity): boolean {
@@ -117,6 +118,14 @@ function drawTiles(ctx: CanvasRenderingContext2D) {
       }
     }
   }
+  // draw placed blocks
+  for (const key of placedBlocks) {
+    const [c, r] = key.split(",").map(Number);
+    ctx.fillStyle = "#7a6a4c";
+    ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
+    ctx.strokeStyle = "#3e3e28";
+    ctx.strokeRect(c * TILE, r * TILE, TILE, TILE);
+  }
 }
 
 function drawEntity(ctx: CanvasRenderingContext2D, e: Entity) {
@@ -152,7 +161,20 @@ const Index = () => {
     const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
     signalIntegrity = 100;
     rescuedCount = 0;
+    placedBlocks.clear();
     let raf = 0;
+
+    const handleClick = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const col = Math.floor((e.clientX - rect.left) * scaleX / TILE);
+      const row = Math.floor((e.clientY - rect.top) * scaleY / TILE);
+      if (col >= 0 && col < COLS && row >= 0 && row < ROWS && TILEMAP[row][col] === 0) {
+        placedBlocks.add(`${col},${row}`);
+      }
+    };
+    canvas.addEventListener("click", handleClick);
 
     function loop() {
       // state machine
@@ -188,7 +210,10 @@ const Index = () => {
     }
 
     raf = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(raf);
+    return () => {
+      cancelAnimationFrame(raf);
+      canvas.removeEventListener("click", handleClick);
+    };
   }, []);
 
   return (
