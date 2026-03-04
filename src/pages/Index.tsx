@@ -10,6 +10,7 @@ const GRAVITY = 0.5;
 const SIGNAL_DECAY = 10;
 const MIN_SPEED_MULT = 0.6;
 const EXIT_ZONE_W = 40;
+const MAX_BLOCKS = 3;
 
 let signalIntegrity = 100;
 let rescuedCount = 0;
