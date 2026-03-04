@@ -189,7 +189,9 @@ const Index = () => {
     canvas.height = H;
 
     let state: GameState = GameState.PLAYING;
-    const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
+    const entities: Entity[] = [];
+    let spawnedCount = 0;
+    let lastSpawnTime = performance.now();
     signalIntegrity = 100;
     rescuedCount = 0;
     runOver = false;
