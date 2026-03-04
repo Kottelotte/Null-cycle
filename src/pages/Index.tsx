@@ -162,6 +162,21 @@ function drawDebugOverlay(ctx: CanvasRenderingContext2D) {
   ctx.font = "12px monospace";
   ctx.fillText(`Signal: ${signalIntegrity}  Speed: x${mult.toFixed(2)}  Rescued: ${rescuedCount}`, 10, 32);
 }
+
+function drawRunOverlay(ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 24px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("Run complete", W / 2, H / 2 - 30);
+  ctx.font = "16px monospace";
+  ctx.fillText(`Rescued: ${rescuedCount} / ${TOTAL_ENTITIES}`, W / 2, H / 2 + 10);
+  const won = rescuedCount >= REQUIRED_TO_WIN;
+  ctx.fillStyle = won ? "#4ae84a" : "#e85d3a";
+  ctx.fillText(`Required to win: ${REQUIRED_TO_WIN}  ${won ? "— SUCCESS" : "— FAILED"}`, W / 2, H / 2 + 40);
+  ctx.textAlign = "start";
+}
 // ── React wrapper (thin shell) ─────────────────────────────
 const Index = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
