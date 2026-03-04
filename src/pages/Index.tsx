@@ -11,8 +11,11 @@ const SIGNAL_DECAY = 10;
 const MIN_SPEED_MULT = 0.6;
 const EXIT_ZONE_W = 40;
 const MAX_BLOCKS = 3;
+const REQUIRED_TO_WIN = 7;
+const TOTAL_ENTITIES = 12;
 
 let signalIntegrity = 100;
+let runOver = false;
 let rescuedCount = 0;
 const placedBlocks = new Set<string>();
 
