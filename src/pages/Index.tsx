@@ -118,6 +118,14 @@ function drawTiles(ctx: CanvasRenderingContext2D) {
       }
     }
   }
+  // draw placed blocks
+  for (const key of placedBlocks) {
+    const [c, r] = key.split(",").map(Number);
+    ctx.fillStyle = "#7a6a4c";
+    ctx.fillRect(c * TILE, r * TILE, TILE, TILE);
+    ctx.strokeStyle = "#3e3e28";
+    ctx.strokeRect(c * TILE, r * TILE, TILE, TILE);
+  }
 }
 
 function drawEntity(ctx: CanvasRenderingContext2D, e: Entity) {
