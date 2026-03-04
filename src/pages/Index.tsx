@@ -211,16 +211,20 @@ const Index = () => {
       // state machine
       switch (state) {
         case GameState.PLAYING:
-          for (let i = entities.length - 1; i >= 0; i--) {
-            const e = entities[i];
-            const prevRescued = rescuedCount;
-            const removed = updateEntity(e);
-            if (removed) {
-              entities.splice(i, 1);
-              // only decay signal if entity was NOT rescued
-              if (rescuedCount === prevRescued) {
-                signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+          if (!runOver) {
+            for (let i = entities.length - 1; i >= 0; i--) {
+              const e = entities[i];
+              const prevRescued = rescuedCount;
+              const removed = updateEntity(e);
+              if (removed) {
+                entities.splice(i, 1);
+                if (rescuedCount === prevRescued) {
+                  signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+                }
               }
+            }
+            if (entities.length === 0) {
+              runOver = true;
             }
           }
           break;
@@ -230,12 +234,12 @@ const Index = () => {
       ctx.fillStyle = "#1a1a2e";
       ctx.fillRect(0, 0, W, H);
       drawTiles(ctx);
-      // draw exit zone
       ctx.fillStyle = "rgba(74, 232, 74, 0.15)";
       ctx.fillRect(W - EXIT_ZONE_W, 0, EXIT_ZONE_W, H);
       for (const e of entities) drawEntity(ctx, e);
       drawSignalBar(ctx);
       drawDebugOverlay(ctx);
+      if (runOver) drawRunOverlay(ctx);
 
       raf = requestAnimationFrame(loop);
     }
