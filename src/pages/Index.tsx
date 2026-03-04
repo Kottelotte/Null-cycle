@@ -13,6 +13,7 @@ const EXIT_ZONE_W = 40;
 const MAX_BLOCKS = 3;
 const REQUIRED_TO_WIN = 7;
 const TOTAL_ENTITIES = 12;
+const SPAWN_INTERVAL_MS = 500;
 
 let signalIntegrity = 100;
 let runOver = false;
