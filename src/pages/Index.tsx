@@ -11,8 +11,11 @@ const SIGNAL_DECAY = 10;
 const MIN_SPEED_MULT = 0.6;
 const EXIT_ZONE_W = 40;
 const MAX_BLOCKS = 3;
+const REQUIRED_TO_WIN = 7;
+const TOTAL_ENTITIES = 12;
 
 let signalIntegrity = 100;
+let runOver = false;
 let rescuedCount = 0;
 const placedBlocks = new Set<string>();
 
@@ -159,6 +162,21 @@ function drawDebugOverlay(ctx: CanvasRenderingContext2D) {
   ctx.font = "12px monospace";
   ctx.fillText(`Signal: ${signalIntegrity}  Speed: x${mult.toFixed(2)}  Rescued: ${rescuedCount}`, 10, 32);
 }
+
+function drawRunOverlay(ctx: CanvasRenderingContext2D) {
+  ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 24px monospace";
+  ctx.textAlign = "center";
+  ctx.fillText("Run complete", W / 2, H / 2 - 30);
+  ctx.font = "16px monospace";
+  ctx.fillText(`Rescued: ${rescuedCount} / ${TOTAL_ENTITIES}`, W / 2, H / 2 + 10);
+  const won = rescuedCount >= REQUIRED_TO_WIN;
+  ctx.fillStyle = won ? "#4ae84a" : "#e85d3a";
+  ctx.fillText(`Required to win: ${REQUIRED_TO_WIN}  ${won ? "— SUCCESS" : "— FAILED"}`, W / 2, H / 2 + 40);
+  ctx.textAlign = "start";
+}
 // ── React wrapper (thin shell) ─────────────────────────────
 const Index = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -173,6 +191,7 @@ const Index = () => {
     const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
     signalIntegrity = 100;
     rescuedCount = 0;
+    runOver = false;
     placedBlocks.clear();
     let raf = 0;
 
@@ -192,16 +211,20 @@ const Index = () => {
       // state machine
       switch (state) {
         case GameState.PLAYING:
-          for (let i = entities.length - 1; i >= 0; i--) {
-            const e = entities[i];
-            const prevRescued = rescuedCount;
-            const removed = updateEntity(e);
-            if (removed) {
-              entities.splice(i, 1);
-              // only decay signal if entity was NOT rescued
-              if (rescuedCount === prevRescued) {
-                signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+          if (!runOver) {
+            for (let i = entities.length - 1; i >= 0; i--) {
+              const e = entities[i];
+              const prevRescued = rescuedCount;
+              const removed = updateEntity(e);
+              if (removed) {
+                entities.splice(i, 1);
+                if (rescuedCount === prevRescued) {
+                  signalIntegrity = Math.max(0, signalIntegrity - SIGNAL_DECAY);
+                }
               }
+            }
+            if (entities.length === 0) {
+              runOver = true;
             }
           }
           break;
@@ -211,12 +234,12 @@ const Index = () => {
       ctx.fillStyle = "#1a1a2e";
       ctx.fillRect(0, 0, W, H);
       drawTiles(ctx);
-      // draw exit zone
       ctx.fillStyle = "rgba(74, 232, 74, 0.15)";
       ctx.fillRect(W - EXIT_ZONE_W, 0, EXIT_ZONE_W, H);
       for (const e of entities) drawEntity(ctx, e);
       drawSignalBar(ctx);
       drawDebugOverlay(ctx);
+      if (runOver) drawRunOverlay(ctx);
 
       raf = requestAnimationFrame(loop);
     }
