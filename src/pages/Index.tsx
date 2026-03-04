@@ -161,7 +161,20 @@ const Index = () => {
     const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
     signalIntegrity = 100;
     rescuedCount = 0;
+    placedBlocks.clear();
     let raf = 0;
+
+    const handleClick = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const col = Math.floor((e.clientX - rect.left) * scaleX / TILE);
+      const row = Math.floor((e.clientY - rect.top) * scaleY / TILE);
+      if (col >= 0 && col < COLS && row >= 0 && row < ROWS && TILEMAP[row][col] === 0) {
+        placedBlocks.add(`${col},${row}`);
+      }
+    };
+    canvas.addEventListener("click", handleClick);
 
     function loop() {
       // state machine
