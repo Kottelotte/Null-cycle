@@ -233,7 +233,7 @@ const Index = () => {
                 }
               }
             }
-            if (entities.length === 0) {
+            if (spawnedCount >= TOTAL_ENTITIES && entities.length === 0) {
               runOver = true;
             }
           }
