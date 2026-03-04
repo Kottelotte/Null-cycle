@@ -23,10 +23,21 @@ function getSpeedMultiplier(): number {
 enum GameState { PLAYING }
 
 // 1 = solid, 0 = air
+// Layout (15 rows × 20 cols):
+//  - Ground floor with a death pit (cols 9-11)
+//  - Mid platform (row 11, cols 4-9) catches falling entities
+//  - Upper platform (row 8, cols 10-16) leads toward exit
+//  - Ramp/step at col 17-19 row 11 connects to ground near exit
 const TILEMAP: number[][] = Array.from({ length: ROWS }, (_, r) =>
   Array.from({ length: COLS }, (_, c) => {
-    if (r === ROWS - 1) return 1;                // ground
-    if (r === ROWS - 4 && c >= 8 && c <= 12) return 1; // floating platform
+    // ground floor — gap at cols 9-11 = death pit
+    if (r === ROWS - 1 && !(c >= 9 && c <= 11)) return 1;
+    // mid-level platform
+    if (r === 11 && c >= 4 && c <= 9) return 1;
+    // upper platform toward exit
+    if (r === 8 && c >= 10 && c <= 16) return 1;
+    // step connecting upper area to ground near exit
+    if (r === 11 && c >= 17 && c <= 19) return 1;
     return 0;
   })
 );
