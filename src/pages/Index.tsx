@@ -171,7 +171,7 @@ const Index = () => {
       const scaleY = canvas.height / rect.height;
       const col = Math.floor((e.clientX - rect.left) * scaleX / TILE);
       const row = Math.floor((e.clientY - rect.top) * scaleY / TILE);
-      if (col >= 0 && col < COLS && row >= 0 && row < ROWS && TILEMAP[row][col] === 0) {
+      if (col >= 0 && col < COLS && row >= 0 && row < ROWS && TILEMAP[row][col] === 0 && placedBlocks.size < MAX_BLOCKS) {
         placedBlocks.add(`${col},${row}`);
       }
     };
