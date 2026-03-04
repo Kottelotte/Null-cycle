@@ -215,6 +215,13 @@ const Index = () => {
       switch (state) {
         case GameState.PLAYING:
           if (!runOver) {
+            // spawn entities one at a time
+            const now = performance.now();
+            if (spawnedCount < TOTAL_ENTITIES && now - lastSpawnTime >= SPAWN_INTERVAL_MS) {
+              entities.push(createPlayer(spawnedCount));
+              spawnedCount++;
+              lastSpawnTime = now;
+            }
             for (let i = entities.length - 1; i >= 0; i--) {
               const e = entities[i];
               const prevRescued = rescuedCount;
