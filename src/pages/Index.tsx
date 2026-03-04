@@ -13,6 +13,7 @@ const EXIT_ZONE_W = 40;
 const MAX_BLOCKS = 3;
 const REQUIRED_TO_WIN = 7;
 const TOTAL_ENTITIES = 12;
+const SPAWN_INTERVAL_MS = 500;
 
 let signalIntegrity = 100;
 let runOver = false;
@@ -188,7 +189,9 @@ const Index = () => {
     canvas.height = H;
 
     let state: GameState = GameState.PLAYING;
-    const entities: Entity[] = Array.from({ length: 12 }, (_, i) => createPlayer(i));
+    const entities: Entity[] = [];
+    let spawnedCount = 0;
+    let lastSpawnTime = performance.now();
     signalIntegrity = 100;
     rescuedCount = 0;
     runOver = false;
@@ -212,6 +215,13 @@ const Index = () => {
       switch (state) {
         case GameState.PLAYING:
           if (!runOver) {
+            // spawn entities one at a time
+            const now = performance.now();
+            if (spawnedCount < TOTAL_ENTITIES && now - lastSpawnTime >= SPAWN_INTERVAL_MS) {
+              entities.push(createPlayer(spawnedCount));
+              spawnedCount++;
+              lastSpawnTime = now;
+            }
             for (let i = entities.length - 1; i >= 0; i--) {
               const e = entities[i];
               const prevRescued = rescuedCount;
@@ -223,7 +233,7 @@ const Index = () => {
                 }
               }
             }
-            if (entities.length === 0) {
+            if (spawnedCount >= TOTAL_ENTITIES && entities.length === 0) {
               runOver = true;
             }
           }
