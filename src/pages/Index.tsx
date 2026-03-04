@@ -47,7 +47,7 @@ function createPlayer(index: number = 0): Entity {
 
 function isSolid(col: number, row: number): boolean {
   if (col < 0 || col >= COLS || row < 0 || row >= ROWS) return false;
-  return TILEMAP[row][col] === 1;
+  return TILEMAP[row][col] === 1 || placedBlocks.has(`${col},${row}`);
 }
 
 function updateEntity(e: Entity): boolean {
