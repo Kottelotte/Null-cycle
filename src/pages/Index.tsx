@@ -13,6 +13,7 @@ const EXIT_ZONE_W = 40;
 
 let signalIntegrity = 100;
 let rescuedCount = 0;
+const placedBlocks = new Set<string>();
 
 function getSpeedMultiplier(): number {
   return Math.max(MIN_SPEED_MULT, signalIntegrity / 100);
