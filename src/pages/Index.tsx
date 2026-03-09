@@ -34,13 +34,13 @@ enum GameState { PLAYING }
 //  - Ramp/step at col 17-19 row 11 connects to ground near exit
 const TILEMAP: number[][] = Array.from({ length: ROWS }, (_, r) =>
   Array.from({ length: COLS }, (_, c) => {
+    // spawn platform at top-left
+    if (r === 4 && c >= 0 && c <= 8) return 1;
+    // middle platform
+    if (r === 8 && c >= 6 && c <= 14) return 1;
     // ground floor — gap at cols 9-11 = death pit
     if (r === ROWS - 1 && !(c >= 9 && c <= 11)) return 1;
-    // mid-level platform
-    if (r === 11 && c >= 4 && c <= 9) return 1;
-    // upper platform toward exit
-    if (r === 8 && c >= 10 && c <= 16) return 1;
-    // step connecting upper area to ground near exit
+    // step connecting to exit
     if (r === 11 && c >= 17 && c <= 19) return 1;
     return 0;
   })
@@ -58,7 +58,8 @@ function createPlayer(index: number = 0): Entity {
   const baseSpeed = 2;
   const direction = Math.random() < 0.5 ? 1 : -1;
   const speedVariation = baseSpeed * (0.9 + Math.random() * 0.2); // ±10%
-  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: speedVariation * direction, vy: 0, w: size, h: size };
+  const spawnY = 4 * TILE - size; // stand on top of row 4 platform
+  return { x: TILE * 2 + index * 20, y: spawnY, vx: speedVariation * direction, vy: 0, w: size, h: size };
 }
 
 function isSolid(col: number, row: number): boolean {
