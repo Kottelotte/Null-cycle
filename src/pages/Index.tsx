@@ -58,7 +58,8 @@ function createPlayer(index: number = 0): Entity {
   const baseSpeed = 2;
   const direction = Math.random() < 0.5 ? 1 : -1;
   const speedVariation = baseSpeed * (0.9 + Math.random() * 0.2); // ±10%
-  return { x: TILE * 2 + index * 20, y: TILE * (ROWS - 3), vx: speedVariation * direction, vy: 0, w: size, h: size };
+  const spawnY = 4 * TILE - size; // stand on top of row 4 platform
+  return { x: TILE * 2 + index * 20, y: spawnY, vx: speedVariation * direction, vy: 0, w: size, h: size };
 }
 
 function isSolid(col: number, row: number): boolean {
