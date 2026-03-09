@@ -34,10 +34,11 @@ enum GameState { PLAYING }
 //  - Ramp/step at col 17-19 row 11 connects to ground near exit
 const TILEMAP: number[][] = Array.from({ length: ROWS }, (_, r) =>
   Array.from({ length: COLS }, (_, c) => {
-    if (r === 4 && c >= 0 && c <= 8) return 1;           // spawn platform
-    if (r === 8 && c >= 5 && c <= 15) return 1;          // middle platform
-    if (c === 15 && r >= 6 && r <= 7) return 1;          // wall above middle platform
-    if (r === ROWS - 1 && !(c >= 9 && c <= 11)) return 1; // ground + death pit
+    if (c === 0 && r >= 3 && r <= 14) return 1;            // left wall
+    if (r === 4 && c >= 0 && c <= 8) return 1;             // spawn platform
+    if (r === 8 && c >= 5 && c <= 15) return 1;            // middle platform
+    if (c === 15 && r >= 6 && r <= 7) return 1;            // right wall on middle
+    if (r === ROWS - 1 && !(c >= 9 && c <= 11)) return 1;  // ground + death pit
     return 0;
   })
 );
